@@ -53,6 +53,8 @@
 #include "../RoboticsLearning/GripperGraspExample.h"
 #include "../InverseKinematics/InverseKinematicsExample.h"
 
+#include "../Compound/BasicBvhTriangleMesh.h"
+
 #ifdef B3_ENABLE_TINY_AUDIO
 #include "../TinyAudio/TinyAudioExample.h"
 #endif //B3_ENABLE_TINY_AUDIO
@@ -338,6 +340,8 @@ static ExampleEntry gDefaultExamples[]=
 	//ExampleEntry(0,"Advanced"),
 	//ExampleEntry(1,"Obj2RigidBody Add Features", "Load a triangle mesh from Wavefront .obj and create polyhedral features to perform the separating axis test (instead of GJK/MPR). It is best to combine optimization and polyhedral feature generation.", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj+ComputePolyhedralFeatures),
 
+	ExampleEntry(0, "Compound"),
+	ExampleEntry(1, "prim vs bvh mesh", "", BasicBvhTriangleMeshCreateFunc),
 
 };
 

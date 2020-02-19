@@ -52,6 +52,7 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 			}
 			break;
 		}
+		case MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE:
 		case TRIANGLE_MESH_SHAPE_PROXYTYPE:
 		{
 			
