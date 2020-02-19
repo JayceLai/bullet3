@@ -18,6 +18,7 @@ subject to the following restrictions:
 
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btTransformUtil.h"
+#include "BulletCollision/CollisionShapes/btCollisionShape.h"
 
 #ifdef PFX_USE_FREE_VECTORMATH
 	#include "physics_effects/base_level/solver/pfx_constraint_row.h"
@@ -90,7 +91,6 @@ class btManifoldPoint
 				
 			}
 
-			
 
 			btVector3 m_localPointA;			
 			btVector3 m_localPointB;			
@@ -140,9 +140,6 @@ class btManifoldPoint
 			btVector3		m_lateralFrictionDir1;
 			btVector3		m_lateralFrictionDir2;
 
-
-
-
 			btScalar getDistance() const
 			{
 				return m_distance1;
@@ -174,6 +171,19 @@ class btManifoldPoint
 			}
 
 			
+			//// XXX +++
+			const btCollisionShape* m_shape0;
+			const btCollisionShape* m_shape1;
+
+			const btCollisionShape* getShape0()
+			{
+				return m_shape0;
+			}
+
+			const btCollisionShape* getShape1()
+			{
+				return m_shape1;
+			}
 
 	};
 
