@@ -508,6 +508,47 @@ public:
 
 	///Preliminary serialization test for Bullet 2.76. Loading those files requires a separate parser (Bullet/Demos/SerializeDemo)
 	virtual void serialize(btSerializer* serializer);
+
+	// cocos
+	typedef btAlignedObjectArray<const btCollisionObject*>		tBtCollisionObjectArray;
+	typedef btAlignedObjectArray<btVector3>		tVector3Array;
+	typedef btAlignedObjectArray<btScalar>		tScalarArray;
+	struct	AllConvexResultCallback : public ConvexResultCallback
+	{
+		AllConvexResultCallback(const btVector3&	convexFromWorld,const btVector3&	convexToWorld)
+		:m_convexFromWorld(convexFromWorld),
+		m_convexToWorld(convexToWorld)
+		{
+		}
+
+		tBtCollisionObjectArray		m_collisionObjects;
+
+		btVector3	m_convexFromWorld;//used to calculate hitPointWorld from hitFraction
+		btVector3	m_convexToWorld;
+
+		tVector3Array	m_hitNormalWorld;
+		tVector3Array	m_hitPointWorld;
+		tScalarArray m_hitFractions;
+		
+		virtual	btScalar	addSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace)
+		{	
+			m_collisionObjects.push_back(convexResult.m_hitCollisionObject);
+			btVector3 hitNormalWorld;
+			if (normalInWorldSpace)
+			{
+				hitNormalWorld = convexResult.m_hitNormalLocal;
+			} else
+			{
+				///need to transform normal into worldspace
+				hitNormalWorld = convexResult.m_hitCollisionObject->getWorldTransform().getBasis()*convexResult.m_hitNormalLocal;
+			}
+			m_hitNormalWorld.push_back(hitNormalWorld);
+			m_hitPointWorld.push_back(convexResult.m_hitPointLocal);
+			m_hitFractions.push_back(convexResult.m_hitFraction);
+			return m_closestHitFraction;
+		}
+	};
+
 };
 
 #endif  //BT_COLLISION_WORLD_H
