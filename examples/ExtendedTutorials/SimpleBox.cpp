@@ -67,6 +67,10 @@ void SimpleBoxExample::initPhysics()
 		// Re-using the same collision is better for memory usage and performance
 		btBoxShape* colShape = createBoxShape(btVector3(1, 1, 1));
 
+		int address = (int)colShape;
+		btCollisionShape* p = (btCollisionShape*)address;
+		p->setLocalScaling(btVector3(btScalar(1.), btScalar(3.), btScalar(1.)));
+
 		m_collisionShapes.push_back(colShape);
 
 		/// Create Dynamic Objects
