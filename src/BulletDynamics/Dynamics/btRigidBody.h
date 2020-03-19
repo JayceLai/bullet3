@@ -581,6 +581,15 @@ public:
 	virtual const char* serialize(void* dataBuffer, class btSerializer* serializer) const;
 
 	virtual void serializeSingleObject(class btSerializer* serializer) const;
+	
+	// @cocos: clear the rigid body state
+	void clearState() {
+		m_linearVelocity.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+		m_angularVelocity.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+		m_totalForce.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+		m_totalTorque.setValue(btScalar(0.0), btScalar(0.0), btScalar(0.0));
+	}
+
 };
 
 //@todo add m_optionalMotionState and m_constraintRefs to btRigidBodyData
