@@ -69,6 +69,12 @@ protected:
 
 	btVector3 m_localScaling;
 
+	//@cocos
+	btAlignedObjectArray<btScalar> m_frictions;
+	btAlignedObjectArray<btScalar> m_rollingFrictions;
+	btAlignedObjectArray<btScalar> m_restitutions;
+	bool m_isMutiMaterial;
+
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -171,6 +177,32 @@ public:
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
+	
+	//@cocos
+	void setMaterial(int index, btScalar friction, btScalar restitution, btScalar rollingFriction = btScalar(0.))
+	{
+		m_frictions[index] = friction;
+		m_restitutions[index] = restitution;
+		m_rollingFrictions[index] = rollingFriction;
+		m_isMutiMaterial = true;
+	}
+
+	btScalar getFriction(const int index) const {
+		return m_frictions[index];
+	}
+	
+	btScalar getRestitution(const int index) const {
+		return m_restitutions[index];
+	}
+	
+	btScalar getRollingFriction(const int index) const {
+		return m_rollingFrictions[index];
+	}
+
+	bool isMutiMaterial() const
+	{
+		return m_isMutiMaterial;
+	}
 };
 
 // clang-format off
