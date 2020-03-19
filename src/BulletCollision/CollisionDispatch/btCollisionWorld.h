@@ -200,7 +200,8 @@ public:
 		int m_collisionFilterMask;
 		//@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback.h. Apply any of the EFlags defined there on m_flags here to invoke.
 		unsigned int m_flags;
-
+		//@cocos
+		short int m_shapePart;
 		virtual ~RayResultCallback()
 		{
 		}
@@ -215,7 +216,8 @@ public:
 			  m_collisionFilterGroup(btBroadphaseProxy::DefaultFilter),
 			  m_collisionFilterMask(btBroadphaseProxy::AllFilter),
 			  //@BP Mod
-			  m_flags(0)
+			  m_flags(0),
+			  m_shapePart(-1)
 		{
 		}
 
@@ -247,7 +249,7 @@ public:
 		{
 			//caller already does the filter on the m_closestHitFraction
 			btAssert(rayResult.m_hitFraction <= m_closestHitFraction);
-
+			m_shapePart = rayResult.m_localShapeInfo->m_shapePart;
 			m_closestHitFraction = rayResult.m_hitFraction;
 			m_collisionObject = rayResult.m_collisionObject;
 			if (normalInWorldSpace)
@@ -277,6 +279,8 @@ public:
 		btVector3 m_rayFromWorld;  //used to calculate hitPointWorld from hitFraction
 		btVector3 m_rayToWorld;
 
+		//@cocos
+		btAlignedObjectArray<short int> m_shapeParts;
 		btAlignedObjectArray<btVector3> m_hitNormalWorld;
 		btAlignedObjectArray<btVector3> m_hitPointWorld;
 		btAlignedObjectArray<btScalar> m_hitFractions;
@@ -300,6 +304,7 @@ public:
 			hitPointWorld.setInterpolate3(m_rayFromWorld, m_rayToWorld, rayResult.m_hitFraction);
 			m_hitPointWorld.push_back(hitPointWorld);
 			m_hitFractions.push_back(rayResult.m_hitFraction);
+			m_shapeParts.push_back(rayResult.m_localShapeInfo->m_shapePart);
 			return m_closestHitFraction;
 		}
 	};
