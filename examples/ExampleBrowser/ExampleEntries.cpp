@@ -86,6 +86,7 @@
 #endif  //B3_USE_CLEW
 
 //Extended Tutorial Includes Added by Mobeen and Benelot
+#include "../ExtendedTutorials/PrimitiveShape.h"
 #include "../ExtendedTutorials/SimpleBox.h"
 #include "../ExtendedTutorials/MultipleBoxes.h"
 #include "../ExtendedTutorials/CompoundBoxes.h"
@@ -344,6 +345,7 @@ static ExampleEntry gDefaultExamples[] =
 
 		//Extended Tutorials Added by Mobeen
 		ExampleEntry(0, "Extended Tutorials"),
+		ExampleEntry(1, "Primitive Shape", "Simplest possible demo creating a single box rigid body that falls under gravity", ET_PrimitiveShapeCreateFunc),
 		ExampleEntry(1, "Simple Box", "Simplest possible demo creating a single box rigid body that falls under gravity", ET_SimpleBoxCreateFunc),
 		ExampleEntry(1, "Multiple Boxes", "Add multiple box rigid bodies that fall under gravity", ET_MultipleBoxesCreateFunc),
 		ExampleEntry(1, "Compound Boxes", "Add multiple boxes to a single CompoundShape to form a simple rigid L-beam, that falls under gravity", ET_CompoundBoxesCreateFunc),
