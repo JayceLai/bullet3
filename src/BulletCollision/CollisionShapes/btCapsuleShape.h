@@ -109,27 +109,19 @@ public:
 	SIMD_FORCE_INLINE void deSerializeFloat(struct btCapsuleShapeData * dataBuffer);
 	
 	// cocos
-	void setUpAxis(int v) {
-		btVector3 unScaledImplicitShapeDimensions = m_implicitShapeDimensions / m_localScaling;
-		int radiusAxis = (m_upAxis+2)%3;
-		btScalar r = unScaledImplicitShapeDimensions[radiusAxis];
-		btScalar h = unScaledImplicitShapeDimensions[m_upAxis];
-		m_upAxis = v;
-		btScalar absSX = m_localScaling.getX();
-		btScalar absSY = m_localScaling.getY();
-		btScalar absSZ = m_localScaling.getZ();
+	void updateProp(btScalar r, btScalar h, int d) {
+		m_upAxis = d;
+		m_localScaling.setValue(1, 1, 1);
 		if (m_upAxis == 1) {
-			btScalar s = absSX > absSZ ? absSX : absSZ;
-			m_implicitShapeDimensions.setValue(r * s, h * absSY, r * s);
-		} else if (m_upAxis == 0){
-			btScalar s = absSY > absSZ ? absSY : absSZ;
-			m_implicitShapeDimensions.setValue(h * absSX, r * s, r * s);
+			m_implicitShapeDimensions.setValue(r, h, r);
+		} else if (m_upAxis == 0) {
+			m_implicitShapeDimensions.setValue(h, r, r);
 		} else {
-			btScalar s = absSY > absSX ? absSY : absSX;
-			m_implicitShapeDimensions.setValue(r * s, r * s, h * absSZ);
+			m_implicitShapeDimensions.setValue(r, r, h);
 		}
+
 		//update m_collisionMargin, since entire radius==margin
-		radiusAxis = (v+2)%3;
+		int radiusAxis = (d+2)%3;
 		m_collisionMargin = m_implicitShapeDimensions[radiusAxis];
 	}
 };

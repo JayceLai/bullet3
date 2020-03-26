@@ -124,6 +124,23 @@ public:
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
+	
+	// cocos
+	void updateProp(btScalar r, btScalar h, int d)
+	{
+		m_upAxis = d;
+		m_localScaling.setValue(1, 1, 1);
+		if (m_upAxis == 1) {
+			m_implicitShapeDimensions.setValue(r, h, r);
+		} else if (m_upAxis == 0) {
+			m_implicitShapeDimensions.setValue(h, r, r);
+		} else {
+			m_implicitShapeDimensions.setValue(r, r, h);
+		}
+
+		btVector3 oldMargin(getMargin(),getMargin(),getMargin());
+		m_implicitShapeDimensions -= oldMargin;
+	}
 };
 
 class btCylinderShapeX : public btCylinderShape
