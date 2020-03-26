@@ -201,7 +201,7 @@ public:
 		//@BP Mod - Custom flags, currently used to enable backface culling on tri-meshes, see btRaycastCallback.h. Apply any of the EFlags defined there on m_flags here to invoke.
 		unsigned int m_flags;
 		//@cocos
-		short int m_shapePart;
+		int m_shapePart;
 		virtual ~RayResultCallback()
 		{
 		}
@@ -282,7 +282,7 @@ public:
 		btVector3 m_rayToWorld;
 
 		//@cocos
-		btAlignedObjectArray<short int> m_shapeParts;
+		btAlignedObjectArray<int> m_shapeParts;
 		btAlignedObjectArray<btVector3> m_hitNormalWorld;
 		btAlignedObjectArray<btVector3> m_hitPointWorld;
 		btAlignedObjectArray<btScalar> m_hitFractions;
