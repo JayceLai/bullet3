@@ -157,6 +157,8 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 		newPt.m_contactPointFlags |= BT_CONTACT_FLAG_FRICTION_ANCHOR;
 	}
 
+	const btCollisionObject* collisionObject0 = m_body0Wrap->getCollisionObject();
+	const btCollisionObject* collisionObject1 = m_body1Wrap->getCollisionObject();
    //BP mod, store contact triangles.
 	if (isSwapped)
 	{
@@ -166,6 +168,8 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 		newPt.m_index1  = m_index0;		
 		newPt.m_shape0 = m_body1Wrap->m_parent ? m_body1Wrap->m_parent->m_shape : m_body1Wrap->m_shape;
 		newPt.m_shape1 = m_body0Wrap->m_parent ? m_body0Wrap->m_parent->m_shape : m_body0Wrap->m_shape;
+		collisionObject0 = m_body1Wrap->getCollisionObject();
+		collisionObject1 = m_body0Wrap->getCollisionObject();
 	} else
 	{
 		newPt.m_partId0 = m_partId0;
@@ -176,7 +180,6 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 		newPt.m_shape1 = m_body1Wrap->m_parent ? m_body1Wrap->m_parent->m_shape : m_body1Wrap->m_shape;
 	}
 
-	const btCollisionObject* collisionObject0 = m_body0Wrap->getCollisionObject();
 	const btCollisionShape* collisionShape0 = newPt.m_shape0;
 	btScalar friction0 = collisionObject0->getFriction();
 	btScalar restitution0 = collisionObject0->getRestitution();
@@ -193,7 +196,7 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 			useCompoundChildMaterial = true;
 		}
 	}
-	else if (collisionShape0->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE || collisionShape0->getShapeType() == MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE)
+	else if (collisionShape0->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE || collisionShape0->getShapeType() == TERRAIN_SHAPE_PROXYTYPE || collisionShape0->getShapeType() == MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE)
 	{
 		const btCollisionShape* tmp_shape = collisionObject0->getCollisionShape();
 		if (tmp_shape->isCompound())
@@ -209,7 +212,6 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 		}
 	}
 
-	const btCollisionObject* collisionObject1 = m_body1Wrap->getCollisionObject();
 	const btCollisionShape* collisionShape1 = newPt.m_shape1;
 	btScalar friction1 = collisionObject1->getFriction();
 	btScalar restitution1 = collisionObject1->getRestitution();
@@ -225,7 +227,7 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld, const 
 			useCompoundChildMaterial = true;
 		}
 	}
-	else if (collisionShape1->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE || collisionShape1->getShapeType() == MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE)
+	else if (collisionShape1->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE || collisionShape1->getShapeType() == TERRAIN_SHAPE_PROXYTYPE || collisionShape1->getShapeType() == MULTIMATERIAL_TRIANGLE_MESH_PROXYTYPE)
 	{
 		const btCollisionShape* tmp_shape = collisionObject1->getCollisionShape();
 		if (tmp_shape->isCompound())
