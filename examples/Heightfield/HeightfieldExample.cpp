@@ -1150,7 +1150,6 @@ void HeightfieldExample::initPhysics()
 
 	// initialize axis- or type-dependent physics from here
 	this->resetPhysics();
-
 }
 
 
@@ -1242,15 +1241,31 @@ void HeightfieldExample::resetPhysics(void)
 	// stash this shape away
 	m_collisionShapes.push_back(m_heightfieldShape);
 
-
+	btCompoundShape* hfCom = new btCompoundShape();
+	btTransform hfTrans;
+	hfTrans.setIdentity();
+	hfCom->addChildShape(hfTrans, m_heightfieldShape);
+	hfCom->setMaterial(0, 0.5, 0.0, 0.0);
+	//m_heightfieldShape->setUserIndex(hfCom->getNumChildShapes() - 1);
 
 	// create ground object
 	float mass = 0.0;
-	btRigidBody* body = createRigidBody(mass, tr, m_heightfieldShape);
+	btRigidBody* body = createRigidBody(mass, tr, hfCom);
 	double color[4]={1,1,1,1};
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 	m_guiHelper->changeRGBAColor(body->getUserIndex(),color);
+	
+	// add a sphere
+	btCompoundShape* com = new btCompoundShape();
+	btSphereShape* sShape = new btSphereShape(5);
+	btTransform sTrans;
+	sTrans.setIdentity();
+	com->addChildShape(sTrans, sShape);
+	btTransform cTrans;
+	cTrans.setIdentity();
+	cTrans.getOrigin().setY(10);
+	createRigidBody(1, cTrans, com);
 }
 
 
