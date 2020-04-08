@@ -211,8 +211,8 @@ public:
 	// Internal types
 	//
 
-	typedef btAlignedObjectArray<btScalar> tScalarArray;
-	typedef btAlignedObjectArray<btVector3> tVector3Array;
+	typedef btAlignedObjectArray<btScalar> btScalarArray;
+	typedef btAlignedObjectArray<btVector3> btVector3Array;
 
 	/* sCti is Softbody contact info	*/
 	struct sCti
@@ -422,8 +422,8 @@ public:
 		bool m_bvolume;       // Is valid
 		bool m_bframe;        // Is frame
 		btScalar m_volume;    // Rest volume
-		tVector3Array m_pos;  // Reference positions
-		tScalarArray m_wgh;   // Weights
+		btVector3Array m_pos;  // Reference positions
+		btScalarArray m_wgh;   // Weights
 		btVector3 m_com;      // COM
 		btMatrix3x3 m_rot;    // Rotation
 		btMatrix3x3 m_scl;    // Scale
@@ -432,9 +432,9 @@ public:
 	/* Cluster		*/
 	struct Cluster
 	{
-		tScalarArray m_masses;
+		btScalarArray m_masses;
 		btAlignedObjectArray<Node*> m_nodes;
-		tVector3Array m_framerefs;
+		btVector3Array m_framerefs;
 		btTransform m_framexform;
 		btScalar m_idmass;
 		btScalar m_imass;

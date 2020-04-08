@@ -517,9 +517,9 @@ public:
 	virtual void serialize(btSerializer* serializer);
 
 	// cocos
-	typedef btAlignedObjectArray<const btCollisionObject*>		tBtCollisionObjectArray;
-	typedef btAlignedObjectArray<btVector3>		tVector3Array;
-	typedef btAlignedObjectArray<btScalar>		tScalarArray;
+	typedef btAlignedObjectArray<const btCollisionObject*>		btCollisionObjectArray;
+	typedef btAlignedObjectArray<btVector3>		btVector3Array;
+	typedef btAlignedObjectArray<btScalar>		btScalarArray;
 	struct	AllConvexResultCallback : public ConvexResultCallback
 	{
 		AllConvexResultCallback(const btVector3&	convexFromWorld,const btVector3&	convexToWorld)
@@ -528,14 +528,14 @@ public:
 		{
 		}
 
-		tBtCollisionObjectArray		m_collisionObjects;
+		btCollisionObjectArray		m_collisionObjects;
 
 		btVector3	m_convexFromWorld;//used to calculate hitPointWorld from hitFraction
 		btVector3	m_convexToWorld;
 
-		tVector3Array	m_hitNormalWorld;
-		tVector3Array	m_hitPointWorld;
-		tScalarArray m_hitFractions;
+		btVector3Array	m_hitNormalWorld;
+		btVector3Array	m_hitPointWorld;
+		btScalarArray m_hitFractions;
 		
 		virtual	btScalar	addSingleResult(LocalConvexResult& convexResult,bool normalInWorldSpace)
 		{	
