@@ -97,6 +97,10 @@ BT_DECLARE_ALIGNED_ALLOCATOR();
 		return m_upAxis;
 	}
 
+	void setUpAxis(int v) {
+		m_upAxis = v;
+	}
+
 	virtual btVector3	getAnisotropicRollingFrictionDirection() const
 	{
 		btVector3 aniDir(0,0,0);

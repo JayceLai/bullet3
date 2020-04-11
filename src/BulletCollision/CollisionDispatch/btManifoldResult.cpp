@@ -158,16 +158,16 @@ void btManifoldResult::addContactPoint(const btVector3& normalOnBInWorld,const b
 		newPt.m_partId1 = m_partId0;
 		newPt.m_index0  = m_index1;
 		newPt.m_index1  = m_index0;
-		newPt.m_shape0 = m_body1Wrap->m_parent->m_shape;
-		newPt.m_shape1 = m_body0Wrap->m_parent->m_shape;
+		newPt.m_shape0 = m_body1Wrap->m_parent?m_body1Wrap->m_parent->m_shape:m_body1Wrap->m_shape;
+		newPt.m_shape1 = m_body0Wrap->m_parent?m_body0Wrap->m_parent->m_shape:m_body0Wrap->m_shape;
 	} else
 	{
 		newPt.m_partId0 = m_partId0;
 		newPt.m_partId1 = m_partId1;
 		newPt.m_index0  = m_index0;
 		newPt.m_index1 = m_index1;
-		newPt.m_shape0 = m_body0Wrap->m_parent->m_shape;
-		newPt.m_shape1 = m_body1Wrap->m_parent->m_shape;
+		newPt.m_shape1 = m_body1Wrap->m_parent?m_body1Wrap->m_parent->m_shape:m_body1Wrap->m_shape;
+		newPt.m_shape0 = m_body0Wrap->m_parent?m_body0Wrap->m_parent->m_shape:m_body0Wrap->m_shape;
 	}
 
 	const btCollisionObject* collisionObject0 = m_body0Wrap->getCollisionObject();

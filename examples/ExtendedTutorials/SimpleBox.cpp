@@ -25,16 +25,25 @@ subject to the following restrictions:
 
 struct SimpleBoxExample : public CommonRigidBodyBase
 {
+	int i;
+	btRigidBody* body;
+	btTransform* trans;
+	btCompoundShape* com;
+	btCylinderShape* cylinder;
 	SimpleBoxExample(struct GUIHelperInterface* helper)
 		:CommonRigidBodyBase(helper)
 	{
+		i = 1;
 	}
-	virtual ~SimpleBoxExample(){}
+	virtual ~SimpleBoxExample(){
+		body = nullptr;
+	}
 	virtual void initPhysics();
 	virtual void renderScene();
+	virtual bool keyboardCallback(int key, int state);
 	void resetCamera()
 	{
-		float dist = 41;
+		float dist = 20;
 		float pitch = -35;
 		float yaw = 52;
 		float targetPos[3]={0,0.46,0};
@@ -69,9 +78,19 @@ void SimpleBoxExample::initPhysics()
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
-        btBoxShape* colShape = createBoxShape(btVector3(1,1,1));
-		 
-		m_collisionShapes.push_back(colShape);
+        // btBoxShape* colShape = createBoxShape(btVector3(1,1,1));
+		btCylinderShape* colShape1 = new btCylinderShape(btVector3(0.5, 1, 1));
+		btTransform colTran;
+		colTran.setIdentity();
+		btCompoundShape* colShape = new btCompoundShape();
+		colShape->addChildShape(colTran, colShape1);
+		// colShape->setUpAxis(0);
+		// delete colShape;
+		// colShape = new btCylinderShapeX(btVector3(1, 0.5, 1));
+		m_collisionShapes.push_back(colShape1);
+		com = colShape;
+		cylinder = colShape1;
+		trans = &colTran;
 
 		/// Create Dynamic Objects
 		btTransform startTransform;
@@ -91,7 +110,8 @@ void SimpleBoxExample::initPhysics()
 								 btScalar(0),
 								 btScalar(20),
 								 btScalar(0)));
-		createRigidBody(mass,startTransform,colShape);		 
+		body = createRigidBody(mass, startTransform, colShape);		
+		body->forceActivationState(4);
 	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
@@ -104,7 +124,22 @@ void SimpleBoxExample::renderScene()
 }
 
 
+bool SimpleBoxExample::keyboardCallback(int key, int state) {
+	if (key == 113) {
+		cylinder->setUpAxis(i++ % 3);
+		// btVector3 isd = cylinder->getImplicitShapeDimensions();
+		// btScalar x = isd.x();
+		// btScalar y = isd.y();
+		// isd.setValue(y, x, isd.z());
+		// cylinder->setLocalScaling(btVector3(1.,1.,1.));
 
+		btTransform colTran;
+		colTran.setIdentity();
+		com->updateChildTransform(0, colTran);
+		//body->updateInertiaTensor();
+	}
+	return true;
+}
 
 
 
