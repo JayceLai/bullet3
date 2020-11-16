@@ -97,11 +97,20 @@ void SimpleJointExample::initPhysics()
 
 		btRigidBody* staticBox = createRigidBody(mass, startTransform, colShape);
 
+		startTransform.setOrigin(btVector3(
+			btScalar(0),
+			btScalar(0),
+			btScalar(0)));
+		btRigidBody* staticBox2 = createRigidBody(mass, startTransform, colShape);
+
 		//create a simple p2pjoint constraint
 		btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*dynamicBox, *staticBox, btVector3(0, 3, 0), btVector3(0, 0, 0));
 		p2p->m_setting.m_damping = 0.0625;
 		p2p->m_setting.m_impulseClamp = 0.95;
+
 		m_dynamicsWorld->addConstraint(p2p);
+
+		//p2p->getRigidBodyB() = *staticBox2;
 	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);

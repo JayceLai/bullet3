@@ -90,7 +90,10 @@ void SimpleBoxExample::initPhysics()
 			btScalar(0),
 			btScalar(20),
 			btScalar(0)));
-		createRigidBody(mass, startTransform, colShape);
+		createRigidBody(mass, startTransform, colShape, 1<<31);
+		
+		int a = 1;
+		printf("%d ", sizeof(a));
 	}
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);

@@ -19,6 +19,7 @@ subject to the following restrictions:
 #include "LinearMath/btVector3.h"
 #include "LinearMath/btAlignedObjectArray.h"
 #include "../CommonInterfaces/CommonRigidBodyBase.h"
+#include "BulletCollision/CollisionShapes/btConvexPointCloudShape.h"
 
 struct PrimitiveShapeExample : public CommonRigidBodyBase
 {
@@ -243,12 +244,24 @@ void PrimitiveShapeExample::initPhysics()
 
 		btScalar scaling(1);
 
+		convexHull->addPoint(btVector3(0, 2, 0));
+		convexHull->addPoint(btVector3(1, 1, 1));
+		convexHull->addPoint(btVector3(1, 1, -1));
+		convexHull->addPoint(btVector3(1, -1, 1));
+		convexHull->addPoint(btVector3(1, -1, -1));
+		convexHull->addPoint(btVector3(-1, 1, 1));
+		convexHull->addPoint(btVector3(-1, 1, -1));
+		convexHull->addPoint(btVector3(-1, -1, 1));
+		convexHull->addPoint(btVector3(-1, -1, -1));
+		
+		convexHull->addPoint(btVector3(0, 0, 0));
 		for (int i = 0; i < 10; i++)
 		{
-			btVector3 vtx(rand() % 3 + 1, rand() % 3 + 1, rand() % 3 + 1);
+			btVector3 vtx(rand() % 1, rand() % 1, rand() % 1);
 			convexHull->addPoint(vtx * btScalar(1. / scaling));
 		}
-		convexHull->addPoint(btVector3(0,0,0));
+		
+		convexHull->setLocalScaling(btVector3(0.5, 1, 1));
 
 		btCompoundShape* colShape = new btCompoundShape();
 		btTransform t;
@@ -277,6 +290,65 @@ void PrimitiveShapeExample::initPhysics()
 			btScalar(0)));
 		createRigidBody(mass, startTransform, colShape);
 	}
+
+	//CONVEX TRIANGLE MESH
+	{
+
+	}
+
+	//CONVEX POINT CLOUD
+	{
+		btConvexPointCloudShape* convexPC = new btConvexPointCloudShape();
+
+		btScalar scaling(1);
+		btVector3 points[20];
+		int j = 0;
+		points[j++]=(btVector3(0, 2, 0));
+		points[j++]=(btVector3(1, 1, 1));
+		points[j++]=(btVector3(1, 1, -1));
+		points[j++]=(btVector3(1, -1, 1));
+		points[j++]=(btVector3(1, -1, -1));
+		points[j++]=(btVector3(-1, 1, 1));
+		points[j++]=(btVector3(-1, 1, -1));
+		points[j++]=(btVector3(-1, -1, 1));
+		points[j++]=(btVector3(-1, -1, -1));
+		points[j++]=(btVector3(0, 0, 0));
+		for (int i = 0; i < 10; i++)
+		{
+			btVector3 vtx(rand() % 1, rand() % 1, rand() % 1);
+			points[i++]=(vtx * btScalar(1. / scaling));
+		}
+		convexPC->setPoints(points, 20, true, btVector3(1.5, 1.5, 1.5));
+
+		btCompoundShape* colShape = new btCompoundShape();
+		btTransform t;
+		t.setIdentity();
+		colShape->addChildShape(t, convexPC);
+		colShape->setMaterial(0, 0.5, 0., 0.);
+
+		m_collisionShapes.push_back(colShape);
+
+		/// Create Dynamic Objects
+		btTransform startTransform;
+		startTransform.setIdentity();
+
+		btScalar mass(0.f);
+
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
+
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic)
+			colShape->calculateLocalInertia(mass, localInertia);
+
+		startTransform.setOrigin(btVector3(
+			btScalar(3),
+			btScalar(1),
+			btScalar(0)));
+		createRigidBody(mass, startTransform, colShape);
+	}
+
+	//MUTI SPHERE
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
