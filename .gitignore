@@ -30,3 +30,8 @@ CTestTestFile.cmake
 *.vcxproj
 *.vcxproj.filters
 *.sln
+
+
+/.cache
+/build-for-vscode
+/compile_commands.json
