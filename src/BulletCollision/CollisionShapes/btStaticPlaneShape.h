@@ -63,6 +63,12 @@ public:
 
 	///fills the dataBuffer and returns the struct name (and 0 on failure)
 	virtual const char* serialize(void* dataBuffer, btSerializer* serializer) const;
+
+	///COCOS extensions
+	void setPlaneConstant(float v) 
+	{
+		m_planeConstant = v;
+	}
 };
 
 ///do not change those serialization structures, it requires an updated sBulletDNAstr/sBulletDNAstr64
