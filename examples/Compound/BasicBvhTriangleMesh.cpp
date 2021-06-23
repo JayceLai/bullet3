@@ -12,6 +12,8 @@
 #include "LinearMath/btTransform.h"
 
 #include "BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
+#include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
 
 class btDynamicsWorld;
 
@@ -37,10 +39,7 @@ class BasicBvhTriangleMesh : public CommonRigidBodyMTBase
 	void createTest();
 	void createTest1();
 	void createTest2();
-	
-	void setCameraDistance(btScalar dist)
-	{
-	}
+	void createTest3();
 
 	void initPhysics();
 	//void exitPhysics();
@@ -48,6 +47,7 @@ class BasicBvhTriangleMesh : public CommonRigidBodyMTBase
 	public:
 	
 	int m_tag;
+	btRigidBody* m_character = nullptr;
 
 	BasicBvhTriangleMesh(struct GUIHelperInterface* helper, int tag)
 			: CommonRigidBodyMTBase(helper), m_tag(tag)
@@ -63,10 +63,10 @@ class BasicBvhTriangleMesh : public CommonRigidBodyMTBase
 
 	void resetCamera()
 	{
-		float dist = 120;
-		float pitch = -35;
-		float yaw = 52;
-		float targetPos[3] = {0, 10.46, 0};
+		float dist = 30;
+		float pitch = -60;
+		float yaw = 0;// 45;
+		float targetPos[3] = {0, 10, 0};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
@@ -109,7 +109,7 @@ void BasicBvhTriangleMesh::createLargeMeshBody()
 		btCompoundShape* comShape = new btCompoundShape();
 		trimeshShape->setUserIndex(comShape->getNumChildShapes());
 		comShape->addChildShape(trimeshTrans, trimeshShape);
-		comShape->setMaterial(0, 0.5, 0.1, 0.1);
+		// comShape->setMaterial(0, 0.5, 0.1, 0.1);
 
 		btVector3 localInertia(0, 0, 0);
 		trans.setOrigin(btVector3(0, -25, 0));
@@ -118,10 +118,8 @@ void BasicBvhTriangleMesh::createLargeMeshBody()
 	}
 }
 
-
 void BasicBvhTriangleMesh::createTest()
 {
-	setCameraDistance(btScalar(250.));
 	btVector3 boxSize(1.5f, 1.5f, 1.5f);
 	float boxMass = 1.0f;
 	float sphereRadius = 1.5f;
@@ -221,7 +219,6 @@ void BasicBvhTriangleMesh::createTest()
 
 void BasicBvhTriangleMesh::createTest1()
 {
-	setCameraDistance(btScalar(250.));
 	btVector3 boxSize(1.5f, 1.5f, 1.5f);
 	float boxMass = 1.0f;
 	float sphereRadius = 1.5f;
@@ -395,7 +392,6 @@ void BasicBvhTriangleMesh::createTest1()
 
 void BasicBvhTriangleMesh::createTest2()
 {
-	setCameraDistance(btScalar(250.));
 	btVector3 boxSize(1.5f, 1.5f, 1.5f);
 	float boxMass = 1.0f;
 	float sphereRadius = 1.5f;
@@ -525,19 +521,61 @@ void BasicBvhTriangleMesh::createTest2()
 	body->setFriction(btScalar(0.9));
 }
 
+void BasicBvhTriangleMesh::createTest3()
+{
+	m_dynamicsWorld->setGravity(btVector3(0., -25., 0.));
+
+	btTransform trans;
+	float capsuleHalf = 1.0f;
+	float capsuleRadius = 0.5f;
+	float capsuleMass = 1.0f;
+	btCapsuleShape* capsuleShape = new btCapsuleShape(capsuleRadius, capsuleHalf);
+	btTransform capsuleTrans;
+	capsuleTrans.setIdentity();
+	btCompoundShape* comShape = new btCompoundShape();
+	comShape->addChildShape(capsuleTrans, capsuleShape);
+	// comShape->setMaterial(0, 0.5, 0.1, 0.1);
+	trans.setIdentity();
+	trans.setOrigin(btVector3(0.15, 1, 50));
+	auto rigid = createRigidBody(capsuleMass, trans, comShape);
+	rigid->setAngularFactor(0.);
+	m_character = rigid;
+
+	auto meshInterface = new btTriangleMesh();
+	// genearte a plane mesh
+	const float scales = 1.f;
+	const int size = 100;
+	const int center = size / 2;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			auto _i = i - center, _j = j - center;
+			auto vertex = new btVector3(_i * scales, 0.f, _j * scales);
+			meshInterface->findOrAddVertex(*vertex, false);
+			if (i < size - 1 && j < size - 1){
+				auto a = j * size + i, b = a + 1, c = (j + 1) * size + i, d = c + 1;
+				meshInterface->addTriangleIndices(a, b, c);
+				meshInterface->addTriangleIndices(b, d, c);
+			}
+		}
+	}
+
+	bool useQuantizedAabbCompression = true;
+	// btBvhTriangleMeshShape* meshShape = new btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression);
+	btConvexTriangleMeshShape* meshShape = new btConvexTriangleMeshShape(meshInterface);
+	trans.setIdentity();
+	// trans.setOrigin(btVector3(0, -25, 0));
+	createRigidBody(0, trans, meshShape);
+}
 
 
 void BasicBvhTriangleMesh::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
-
-	setCameraDistance(btScalar(100.));
-
 	createEmptyDynamicsWorld();
 
 	///the following 3 lines increase the performance dramatically, with a little bit of loss of quality
-	m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;  //don't recalculate friction values each frame
-	m_dynamicsWorld->getSolverInfo().m_numIterations = 5;                                       //few solver iterations
+	// m_dynamicsWorld->getSolverInfo().m_solverMode |= SOLVER_ENABLE_FRICTION_DIRECTION_CACHING;  //don't recalculate friction values each frame
+	// m_dynamicsWorld->getSolverInfo().m_numIterations = 5;                                       //few solver iterations
 	//m_defaultContactProcessingThreshold = 0.f;//used when creating bodies: body->setContactProcessingThreshold(...);
 	m_guiHelper->createPhysicsDebugDrawer(m_dynamicsWorld);
 
@@ -551,6 +589,9 @@ void BasicBvhTriangleMesh::initPhysics()
 		case 1:
 			createTest1();
 			break;
+		case 3:
+			createTest3();
+			break;
 		default:
 			createTest();
 			break;
@@ -558,6 +599,7 @@ void BasicBvhTriangleMesh::initPhysics()
 
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
 }
+
 //
 //void BasicBvhTriangleMesh::exitPhysics()
 //{
@@ -570,7 +612,25 @@ void BasicBvhTriangleMesh::stepSimulation(float deltaTime)
 {
 	if (m_dynamicsWorld)
 	{
+		if (m_character) {
+			auto v = m_character->getLinearVelocity();
+			v += btVector3(0, 0, -5);
+			if (v.length() > 5) {
+				v.normalize();
+				v *= 5;
+			}
+			m_character->setLinearVelocity(v);
+		}
 		m_dynamicsWorld->stepSimulation(deltaTime);
+		if (m_character) {
+			auto& v = m_character->getLinearVelocity();
+			if (v.x() != 0. || v.y() != 0.) {
+				b3Printf("velocity v3 = ( %f,  %f,  %f )", v.x(), v.y(), v.z());
+				auto& trans = m_character->getWorldTransform();
+				auto& origin = trans.getOrigin();
+				b3Printf("pos v3 = ( %f,  %f,  %f )", origin.x(), origin.y(), origin.z());
+			}
+		}
 	}
 }
 

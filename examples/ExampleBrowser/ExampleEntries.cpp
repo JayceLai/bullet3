@@ -341,9 +341,10 @@ static ExampleEntry gDefaultExamples[]=
 	//ExampleEntry(1,"Obj2RigidBody Add Features", "Load a triangle mesh from Wavefront .obj and create polyhedral features to perform the separating axis test (instead of GJK/MPR). It is best to combine optimization and polyhedral feature generation.", ET_RigidBodyFromObjCreateFunc,OptimizeConvexObj+ComputePolyhedralFeatures),
 
 	ExampleEntry(0, "Compound"),
-	ExampleEntry(1, "prim vs bvh mesh", "", BasicBvhTriangleMeshCreateFunc, 0),
-	ExampleEntry(1, "change bvh mesh", "", BasicBvhTriangleMeshCreateFunc, 1),
-	ExampleEntry(1, "muti bvh mesh", "", BasicBvhTriangleMeshCreateFunc, 2),
+	ExampleEntry(1, "prim vs static mesh", "", BasicBvhTriangleMeshCreateFunc, 0),
+	ExampleEntry(1, "change static mesh", "", BasicBvhTriangleMeshCreateFunc, 1),
+	// ExampleEntry(1, "muti static mesh", "", BasicBvhTriangleMeshCreateFunc, 2),
+	ExampleEntry(1, "capsule vs static mesh", "", BasicBvhTriangleMeshCreateFunc, 3),
 
 };
 
