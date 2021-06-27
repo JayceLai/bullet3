@@ -11,9 +11,11 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "LinearMath/btTransform.h"
 
+
 #include "BulletCollision/CollisionShapes/btMultimaterialTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h"
 #include "BulletCollision/CollisionShapes/btConvexTriangleMeshShape.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
 
 class btDynamicsWorld;
 
@@ -25,6 +27,7 @@ class btCollisionDispatcher;
 class btConstraintSolver;
 
 #include "../MultiThreadedDemo/CommonRigidBodyMTBase.h"
+#include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 //#include "../Benchmarks/TaruData.h"
 //#include "../Benchmarks/landscapeData.h"
 
@@ -63,10 +66,10 @@ class BasicBvhTriangleMesh : public CommonRigidBodyMTBase
 
 	void resetCamera()
 	{
-		float dist = 30;
-		float pitch = -60;
+		float dist = 60;
+		float pitch = -45;
 		float yaw = 0;// 45;
-		float targetPos[3] = {0, 10, 0};
+		float targetPos[3] = {0, 0, -20};
 		m_guiHelper->resetCamera(dist, yaw, pitch, targetPos[0], targetPos[1], targetPos[2]);
 	}
 
@@ -526,8 +529,9 @@ void BasicBvhTriangleMesh::createTest3()
 	m_dynamicsWorld->setGravity(btVector3(0., -25., 0.));
 
 	btTransform trans;
-	float capsuleHalf = 1.0f;
-	float capsuleRadius = 0.5f;
+	constexpr int scale = 5;
+	float capsuleHalf = 1.0f * scale;
+	float capsuleRadius = 0.5f * scale;
 	float capsuleMass = 1.0f;
 	btCapsuleShape* capsuleShape = new btCapsuleShape(capsuleRadius, capsuleHalf);
 	btTransform capsuleTrans;
@@ -536,7 +540,7 @@ void BasicBvhTriangleMesh::createTest3()
 	comShape->addChildShape(capsuleTrans, capsuleShape);
 	// comShape->setMaterial(0, 0.5, 0.1, 0.1);
 	trans.setIdentity();
-	trans.setOrigin(btVector3(0.15, 1, 50));
+	trans.setOrigin(btVector3(0.15, 5, 50));
 	auto rigid = createRigidBody(capsuleMass, trans, comShape);
 	rigid->setAngularFactor(0.);
 	m_character = rigid;
@@ -560,8 +564,14 @@ void BasicBvhTriangleMesh::createTest3()
 	}
 
 	bool useQuantizedAabbCompression = true;
-	// btBvhTriangleMeshShape* meshShape = new btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression);
-	btConvexTriangleMeshShape* meshShape = new btConvexTriangleMeshShape(meshInterface);
+	auto* meshShape = new btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression);
+	//auto* meshShape = new btConvexTriangleMeshShape(meshInterface);
+
+	/*btCollisionDispatcher* dispatcher = static_cast<btCollisionDispatcher*>(m_dynamicsWorld->getDispatcher());
+	btGImpactCollisionAlgorithm::registerAlgorithm(dispatcher);
+	auto* meshShape = new btGImpactMeshShape(meshInterface);
+	meshShape->updateBound();*/
+
 	trans.setIdentity();
 	// trans.setOrigin(btVector3(0, -25, 0));
 	createRigidBody(0, trans, meshShape);

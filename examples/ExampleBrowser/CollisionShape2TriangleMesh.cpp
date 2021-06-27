@@ -3,6 +3,83 @@
 
 #include "btBulletCollisionCommon.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"//to create a tesselation of a generic btConvexShape
+#include "BulletCollision/Gimpact/btGImpactShape.h"
+
+static void StridingMesh2TriangleMesh(const btStridingMeshInterface* meshInterface, const btVector3& trimeshScaling, const btTransform& parentTransform,
+	btAlignedObjectArray<btVector3>& vertexPositions, btAlignedObjectArray<btVector3>& vertexNormals, btAlignedObjectArray<int>& indicesOut) {
+
+	btAlignedObjectArray<btVector3> vertices;
+	btAlignedObjectArray<int> indices;
+
+	for (int partId = 0; partId < meshInterface->getNumSubParts(); partId++)
+	{
+
+		const unsigned char* vertexbase = 0;
+		int numverts = 0;
+		PHY_ScalarType type = PHY_INTEGER;
+		int stride = 0;
+		const unsigned char* indexbase = 0;
+		int indexstride = 0;
+		int numfaces = 0;
+		PHY_ScalarType indicestype = PHY_INTEGER;
+		//PHY_ScalarType indexType=0;
+
+		btVector3 triangleVerts[3];
+		meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase, numverts, type, stride, &indexbase, indexstride, numfaces, indicestype, partId);
+		btVector3 aabbMin, aabbMax;
+
+		for (int triangleIndex = 0; triangleIndex < numfaces; triangleIndex++)
+		{
+			unsigned int* gfxbase = (unsigned int*)(indexbase + triangleIndex * indexstride);
+
+			for (int j = 2; j >= 0; j--)
+			{
+
+				int graphicsindex = indicestype == PHY_SHORT ? ((unsigned short*)gfxbase)[j] : gfxbase[j];
+				if (type == PHY_FLOAT)
+				{
+					float* graphicsbase = (float*)(vertexbase + graphicsindex * stride);
+					triangleVerts[j] = btVector3(
+						graphicsbase[0] * trimeshScaling.getX(),
+						graphicsbase[1] * trimeshScaling.getY(),
+						graphicsbase[2] * trimeshScaling.getZ());
+				}
+				else
+				{
+					double* graphicsbase = (double*)(vertexbase + graphicsindex * stride);
+					triangleVerts[j] = btVector3(btScalar(graphicsbase[0] * trimeshScaling.getX()),
+						btScalar(graphicsbase[1] * trimeshScaling.getY()),
+						btScalar(graphicsbase[2] * trimeshScaling.getZ()));
+				}
+			}
+			indices.push_back(vertices.size());
+			vertices.push_back(triangleVerts[0]);
+			indices.push_back(vertices.size());
+			vertices.push_back(triangleVerts[1]);
+			indices.push_back(vertices.size());
+			vertices.push_back(triangleVerts[2]);
+
+			btVector3 triNormal = (triangleVerts[1] - triangleVerts[0]).cross(triangleVerts[2] - triangleVerts[0]);
+			btScalar dot = triNormal.dot(triNormal);
+
+			//cull degenerate triangles
+			if (dot >= SIMD_EPSILON * SIMD_EPSILON)
+			{
+				triNormal /= btSqrt(dot);
+				for (int v = 0; v < 3; v++)
+				{
+
+					btVector3 pos = parentTransform * triangleVerts[v];
+					indicesOut.push_back(vertexPositions.size());
+					vertexPositions.push_back(pos);
+					vertexNormals.push_back(triNormal);
+				}
+			}
+
+		}
+	}
+
+}
 
 void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTransform& parentTransform, btAlignedObjectArray<btVector3>& vertexPositions, btAlignedObjectArray<btVector3>& vertexNormals, btAlignedObjectArray<int>& indicesOut)
 
@@ -60,77 +137,15 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 			btBvhTriangleMeshShape* trimesh = (btBvhTriangleMeshShape*) collisionShape;
 			btVector3 trimeshScaling = trimesh->getLocalScaling();
 			btStridingMeshInterface* meshInterface = trimesh->getMeshInterface();
-			btAlignedObjectArray<btVector3> vertices;
-			btAlignedObjectArray<int> indices;
-				
-			for (int partId=0;partId<meshInterface->getNumSubParts();partId++)
-			{
-					
-				const unsigned char *vertexbase = 0;
-				int numverts = 0;
-				PHY_ScalarType type = PHY_INTEGER;
-				int stride = 0;
-				const unsigned char *indexbase = 0;
-				int indexstride = 0;
-				int numfaces = 0;
-				PHY_ScalarType indicestype = PHY_INTEGER;
-				//PHY_ScalarType indexType=0;
-					
-				btVector3 triangleVerts[3];
-				meshInterface->getLockedReadOnlyVertexIndexBase(&vertexbase,numverts,	type,stride,&indexbase,indexstride,numfaces,indicestype,partId);
-				btVector3 aabbMin,aabbMax;
-					
-				for (int triangleIndex = 0 ; triangleIndex < numfaces;triangleIndex++)
-				{
-					unsigned int* gfxbase = (unsigned int*)(indexbase+triangleIndex*indexstride);
-						
-					for (int j=2;j>=0;j--)
-					{
-							
-						int graphicsindex = indicestype==PHY_SHORT?((unsigned short*)gfxbase)[j]:gfxbase[j];
-						if (type == PHY_FLOAT)
-						{
-							float* graphicsbase = (float*)(vertexbase+graphicsindex*stride);
-							triangleVerts[j] = btVector3(
-															graphicsbase[0]*trimeshScaling.getX(),
-															graphicsbase[1]*trimeshScaling.getY(),
-															graphicsbase[2]*trimeshScaling.getZ());
-						}
-						else
-						{
-							double* graphicsbase = (double*)(vertexbase+graphicsindex*stride);
-							triangleVerts[j] = btVector3( btScalar(graphicsbase[0]*trimeshScaling.getX()),
-															btScalar(graphicsbase[1]*trimeshScaling.getY()),
-															btScalar(graphicsbase[2]*trimeshScaling.getZ()));
-						}
-					}
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[0]);
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[1]);
-					indices.push_back(vertices.size());
-					vertices.push_back(triangleVerts[2]);
-
-					btVector3 triNormal = (triangleVerts[1]-triangleVerts[0]).cross(triangleVerts[2]-triangleVerts[0]);
-					btScalar dot = triNormal.dot(triNormal);
-
-					//cull degenerate triangles
-					if (dot >= SIMD_EPSILON*SIMD_EPSILON)
-					{
-						triNormal /= btSqrt(dot);
-						for (int v = 0; v < 3; v++)
-						{
-
-							btVector3 pos = parentTransform*triangleVerts[v];
-							indicesOut.push_back(vertexPositions.size());
-							vertexPositions.push_back(pos);
-							vertexNormals.push_back(triNormal);
-						}
-					}
-					
-				}
-			}
-			
+			StridingMesh2TriangleMesh(meshInterface, trimeshScaling, parentTransform, vertexPositions, vertexNormals, indicesOut);
+			break;
+		}
+		case GIMPACT_SHAPE_PROXYTYPE:
+		{
+			auto* trimesh = (btGImpactMeshShape*)collisionShape;
+			btVector3 trimeshScaling = trimesh->getLocalScaling();
+			btStridingMeshInterface* meshInterface = trimesh->getMeshInterface();
+			StridingMesh2TriangleMesh(meshInterface, trimeshScaling, parentTransform, vertexPositions, vertexNormals, indicesOut);
 			break;
 		}
 		default:
@@ -193,5 +208,3 @@ void CollisionShape2TriangleMesh(btCollisionShape* collisionShape, const btTrans
 		}
 	};
 }
-
-
